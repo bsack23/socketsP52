@@ -5,6 +5,9 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   transports: ['websocket'], //set to use websocket only
 }); //this loads socket.io and connects it to the server.
+// const io = require('socket.io')();
+// io.on('connection', client => { ... });
+//io.listen(3000);
 
 const port = process.env.PORT || 8080;
 // const port = process.env.PORT || 80;
@@ -33,6 +36,7 @@ io.on('connection', (socket) => {
   //it includes the socket object from which you can get the id, useful for identifying each client
   console.log(`${socket.id} connected`);
   // add a starting position when the client connects
+  // for this, everyone starts at grid 1, 1
   positions[socket.id] = { x: 1, y: 1, n: num };
   num++;
   // send everyones positions to every connected client?
@@ -52,6 +56,8 @@ io.on('connection', (socket) => {
 });
 
 //send positions every framerate to each client
+// may not need this for our application -
+// consider doing an 'emit' only when there's a change?
 const frameRate = 30;
 setInterval(() => {
   io.emit('positions', positions);

@@ -7,6 +7,11 @@ const socket = io({
 });
 
 //the p5js sketch
+// note: this is using the p5 instance mode
+// https://p5js.org/reference/#/p5/p5
+// to separate the p5 code from regular javascript
+// ... plus, it's cool!
+
 const sketch = (p) => {
   let positions = {};
   //the p5js setup function
@@ -15,15 +20,6 @@ const sketch = (p) => {
     const containerPos = sketchContainer.getBoundingClientRect();
     const cnv = p.createCanvas(containerPos.width, containerPos.height); //the canvas!
     p.textAlign(p.CENTER, p.CENTER);
-    // p.textAlign(CENTER, CENTER); // this fails!
-    // cnv.mousePressed(() => {
-    //   //when you click on the canvas, update your position
-    //   socket.emit('updatePosition', {
-    //     x: p.mouseX / p.width, // always send relative number of position between 0 and 1
-    //     y: p.mouseY / p.height, //so it positions are the relatively the same on different screen sizes.
-    //   });
-    // });
-
     p.frameRate(30); //set framerate to 30, same as server
     socket.on('positions', (data) => {
       //get the data from the server to continually update the positions
@@ -51,7 +47,9 @@ const sketch = (p) => {
     for (const id in positions) {
       const position = positions[id];
       p.fill(255); //sets the fill color of the circle to white
+      // draw white dots wherever other players' positions are
       p.ellipse(position.x * (p.width / 9), position.y * (p.height / 9), 20);
+      // try to print an id number on each dot - i'm not sure this works
       p.fill(0); //sets the fill color of the text to black
       p.text(
         position.n,
@@ -66,7 +64,7 @@ const sketch = (p) => {
     p.fill('red');
     p.ellipse(xloc, yloc, 30);
   };
-
+  // user changes positions on grid with arrow keys
   p.keyPressed = () => {
     switch (p.key) {
       case 'ArrowUp':
@@ -81,6 +79,7 @@ const sketch = (p) => {
       case 'ArrowRight':
         gx += 1;
     }
+    // boundaries for our little ball on the grid
     if (gy < 1) gy = 1;
     if (gy > 8) gy = 8;
     if (gx < 1) gx = 1;
